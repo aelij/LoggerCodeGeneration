@@ -1,0 +1,10 @@
+<Project>
+	<PropertyGroup>
+		<Nullable>enable</Nullable>
+		<LangVersion>latest</LangVersion>
+		<Deterministic>true</Deterministic>
+		<Features>strict</Features>
+		<WarningsAsErrors>true</WarningsAsErrors>
+		<PackageProjectUrl>https://github.com/aelij/LoggerCodeGeneration</PackageProjectUrl>
+	</PropertyGroup>
+</Project>
