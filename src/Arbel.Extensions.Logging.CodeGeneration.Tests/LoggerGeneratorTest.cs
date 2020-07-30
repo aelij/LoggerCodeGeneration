@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Reflection;
 using Xunit;
@@ -83,6 +82,14 @@ namespace Arbel.Extensions.Logging.CodeGeneration.Tests
         }
 
         [Fact]
+        public void CategoryName()
+        {
+            var generator = CreateGenerator();
+            generator.Generate<ITestLogDerived>();
+            Assert.Equal("Arbel.Extensions.Logging.CodeGeneration.Tests.TestLogDerived", _testLogger.CategoryName);
+        }
+
+        [Fact]
         public void EventIdWithoutAttribute()
         {
             var expected = 1;
@@ -90,6 +97,24 @@ namespace Arbel.Extensions.Logging.CodeGeneration.Tests
             var logger = generator.Generate<ITestLogNoAttributes>();
             logger.Test(expected);
             Assert.Equal(expected, _testLogger.State.Values.First());
+        }
+
+        [Fact]
+        public void EventDifferentLevel()
+        {
+            var generator = CreateGenerator();
+            var logger = generator.Generate<ITestLevelWarning>();
+            logger.Test();
+            Assert.Equal(LogLevel.Warning, _testLogger.LogLevel);
+        }
+
+        [Fact]
+        public void EventCustomFormat()
+        {
+            var generator = CreateGenerator();
+            var logger = generator.Generate<ITestLevelCustomFormat>();
+            logger.Test(1, "2");
+            Assert.Equal("Custom12", _testLogger.Message);
         }
 
         [Fact]
@@ -160,7 +185,11 @@ namespace Arbel.Extensions.Logging.CodeGeneration.Tests
 
             public void AddProvider(ILoggerProvider provider) { }
 
-            public ILogger CreateLogger(string categoryName) => _testLogger;
+            public ILogger CreateLogger(string categoryName)
+            {
+                _testLogger.CategoryName = categoryName;
+                return _testLogger;
+            }
 
             public void Dispose() { }
         }
@@ -183,6 +212,9 @@ namespace Arbel.Extensions.Logging.CodeGeneration.Tests
                 private set => _state = value;
             }
 
+            public string? Message { get; private set; }
+            public string? CategoryName { get; internal set; }
+
             public IDisposable BeginScope<TState>(TState state) => throw new NotSupportedException();
 
             public bool IsEnabled(LogLevel logLevel) => true;
@@ -196,6 +228,7 @@ namespace Arbel.Extensions.Logging.CodeGeneration.Tests
                 {
                     State = list.Where(item => item.Key != "{OriginalFormat}").ToDictionary(item => item.Key, item => item.Value);
                 }
+                Message = formatter(state, exception);
             }
         }
 
@@ -204,16 +237,25 @@ namespace Arbel.Extensions.Logging.CodeGeneration.Tests
             void Test(int value);
         }
 
+        public interface ITestLevelWarning
+        {
+            [LoggerEvent(Level = LogLevel.Warning)]
+            void Test();
+        }
+
+        public interface ITestLevelCustomFormat
+        {
+            [LoggerEvent(Format = "Custom{a}{b}")]
+            void Test(int a, string b);
+        }
+
         public interface ITestLogBase
         {
-            [Event(1)]
             void Base(int value);
         }
 
-        [LoggerCategory(Name = "ITestLogDerived")]
         public interface ITestLogDerived : ITestLogBase
         {
-            [Event(2)]
             void Derived(int value);
         }
 
@@ -241,10 +283,8 @@ namespace Arbel.Extensions.Logging.CodeGeneration.Tests
         [LoggerCategory(Name = "TestLogData")]
         public interface ITestLogData<in T>
         {
-            [Event(1)]
             void Test(T data);
 
-            [Event(2)]
             void Test2(T data, int i);
         }
 

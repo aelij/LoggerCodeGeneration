@@ -43,6 +43,13 @@ namespace Arbel.Extensions.Logging.CodeGeneration
             string GetNameFromType()
             {
                 var name = interfaceType.Name;
+                if (name[0] == 'I')
+                {
+                    name = name.Substring(1);
+                }
+
+                name = interfaceType.Namespace + "." + name;
+
                 if (interfaceType.IsGenericType)
                 {
                     name += "-" + string.Join("-", interfaceType.GenericTypeArguments.Select(x => x.Name));

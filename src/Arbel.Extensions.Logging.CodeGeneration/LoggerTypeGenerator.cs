@@ -206,12 +206,16 @@ namespace Arbel.Extensions.Logging.CodeGeneration
 
             private void EmitFormatString(MethodData method, ILGenerator il)
             {
-                var formatString = string.Join(", ", method.Parameters.Select(p =>
+                il.Emit(OpCodes.Ldstr, method.Attribute.Format ?? GetFormatString());
+
+                string GetFormatString()
                 {
-                    var name = _options.ParameterNameFormatter?.Invoke(p.Parameter.Name) ?? p.Parameter.Name; 
-                    return $"{name}={{{name}}}";
-                }));
-                il.Emit(OpCodes.Ldstr, formatString);
+                    return string.Join(", ", method.Parameters.Select(p =>
+                    {
+                        var name = _options.ParameterNameFormatter?.Invoke(p.Parameter.Name) ?? p.Parameter.Name;
+                        return $"{name}={{{name}}}";
+                    }));
+                }
             }
 
             private void GenerateMethod(MethodData method)

@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
-		<PackageVersion>1.0.0</PackageVersion>
+		<PackageVersion>1.1.0</PackageVersion>
 		<Authors>aelij</Authors>
 		<Description>A library for generating logger classes from interfaces at run-time</Description>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
