@@ -12,7 +12,7 @@ namespace Arbel.Extensions.Logging.CodeGeneration.Tests
 {
     public class LoggerGeneratorTest
     {
-        private readonly TestLogger _testLogger = new TestLogger();
+        private readonly TestLogger _testLogger = new();
 
         [Theory]
         [MemberData(nameof(SimpleDataTypesParameters))]
@@ -219,7 +219,7 @@ namespace Arbel.Extensions.Logging.CodeGeneration.Tests
 
             public bool IsEnabled(LogLevel logLevel) => true;
 
-            public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+            public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
             {
                 LogLevel = logLevel;
                 EventId = eventId;

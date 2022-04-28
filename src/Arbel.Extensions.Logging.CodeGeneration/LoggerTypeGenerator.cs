@@ -18,7 +18,7 @@ namespace Arbel.Extensions.Logging.CodeGeneration
             new[] { typeof(ILogger), typeof(LogLevel), typeof(EventId), typeof(Exception), typeof(string), typeof(object[]) });
 
         private static readonly ImmutableArray<MethodInfo> s_loggerMessageMethods = typeof(LoggerMessage)
-            .GetMethods().Where(m => m.Name == nameof(LoggerMessage.Define))
+            .GetMethods().Where(m => m.Name == nameof(LoggerMessage.Define) && m.GetParameters().Select(p => p.ParameterType).SequenceEqual(new[] { typeof(LogLevel), typeof(EventId), typeof(string) }))
             .OrderBy(m => m.IsGenericMethod ? m.GetGenericArguments().Length : 0)
             .ToImmutableArray();
 
